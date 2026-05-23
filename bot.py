@@ -20,8 +20,7 @@ DEPOSIT, RISK, ENTRY, SL, TP = range(5)
 
 WELCOME_TEXT = (
     "📊 *Just Trade It — Risk Calculator*\n\n"
-    "Рассчитай точный объём позиции и R:R за секунды.\n"
-    "Все поля заполняются сразу — как в настоящем приложении 👇"
+    "Calculate your exact position size and R:R in seconds. 👇"
 )
 
 
@@ -29,7 +28,7 @@ def start_keyboard():
     from telegram import WebAppInfo
     if WEB_APP_URL:
         return InlineKeyboardMarkup([
-            [InlineKeyboardButton("📊 Открыть калькулятор", web_app=WebAppInfo(url=WEB_APP_URL))]
+            [InlineKeyboardButton("📊 Open Calculator", web_app=WebAppInfo(url=WEB_APP_URL))]
         ])
     # fallback пока нет хостинга
     return InlineKeyboardMarkup([
