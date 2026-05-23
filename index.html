@@ -4,6 +4,12 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0" />
   <title>Risk Calculator — Just Trade It</title>
+  <link rel="manifest" href="manifest.json" />
+  <link rel="apple-touch-icon" href="icon-192.png" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="Risk Calc" />
+  <meta name="theme-color" content="#f7931a" />
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -265,6 +271,24 @@
       color: #26a69a;
     }
 
+    /* Add to Home Screen button */
+    .btn-home {
+      display: block;
+      width: 100%;
+      padding: 14px;
+      margin-bottom: 12px;
+      border-radius: 14px;
+      background: rgba(99,102,241,0.1);
+      border: 1px solid rgba(99,102,241,0.25);
+      color: #818cf8;
+      font-size: 14px;
+      font-weight: 700;
+      text-align: center;
+      cursor: pointer;
+      transition: opacity 0.15s;
+    }
+    .btn-home:active { opacity: 0.8; }
+
     /* YouTube course button */
     .btn-course {
       display: block;
@@ -357,6 +381,11 @@
     </div>
   </div>
 
+  <!-- Add to Home Screen -->
+  <button class="btn-home" id="btn-home" onclick="addToHome()" style="display:none">
+    📱 Add to Home Screen
+  </button>
+
   <!-- Free Course -->
   <a href="https://www.youtube.com/watch?v=Glp2lgMrL_I&t=1s" class="btn-course" target="_blank">
     🎓 Free Trading Course — Watch on YouTube
@@ -442,6 +471,38 @@
     document.addEventListener('keydown', e => {
       if (e.key === 'Enter') calculate();
     });
+
+    // Add to Home Screen
+    let deferredPrompt = null;
+
+    function addToHome() {
+      const tg = window.Telegram && window.Telegram.WebApp;
+      // Telegram native method (Telegram 10.4+)
+      if (tg && tg.addToHomeScreen) {
+        tg.addToHomeScreen();
+        return;
+      }
+      // Android Chrome PWA install prompt
+      if (deferredPrompt) {
+        deferredPrompt.prompt();
+        deferredPrompt.userChoice.then(() => { deferredPrompt = null; });
+        return;
+      }
+      // iOS — show manual instructions
+      alert('On iPhone: tap the Share button (□↑) at the bottom of Safari → "Add to Home Screen"');
+    }
+
+    // Capture Android install prompt
+    window.addEventListener('beforeinstallprompt', e => {
+      e.preventDefault();
+      deferredPrompt = e;
+      document.getElementById('btn-home').style.display = 'block';
+    });
+
+    // Show button if Telegram supports addToHomeScreen
+    if (window.Telegram && window.Telegram.WebApp && window.Telegram.WebApp.addToHomeScreen) {
+      document.getElementById('btn-home').style.display = 'block';
+    }
   </script>
 </body>
 </html>
