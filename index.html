@@ -1,0 +1,421 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0" />
+  <title>Risk Calculator — Just Trade It</title>
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background: linear-gradient(160deg, #0a0e17 0%, #111827 100%);
+      color: #e2e8f0;
+      font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', sans-serif;
+      min-height: 100vh;
+      padding: 16px 16px 32px;
+    }
+
+    /* Header */
+    .header {
+      text-align: center;
+      margin-bottom: 24px;
+      padding-top: 8px;
+    }
+    .header .logo {
+      font-size: 13px;
+      color: #f7931a;
+      font-weight: 700;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      margin-bottom: 6px;
+    }
+    .header h1 {
+      font-size: 22px;
+      font-weight: 700;
+      color: #fff;
+      letter-spacing: -0.5px;
+    }
+    .header p {
+      font-size: 13px;
+      color: #64748b;
+      margin-top: 4px;
+    }
+
+    /* Card */
+    .card {
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 16px;
+      padding: 20px;
+      margin-bottom: 12px;
+    }
+    .card-title {
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      color: #64748b;
+      margin-bottom: 16px;
+    }
+
+    /* Input group */
+    .input-group {
+      margin-bottom: 14px;
+    }
+    .input-group:last-child { margin-bottom: 0; }
+
+    label {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 12px;
+      font-weight: 600;
+      color: #94a3b8;
+      margin-bottom: 6px;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+    }
+    label span.hint {
+      font-size: 11px;
+      color: #475569;
+      font-weight: 400;
+      text-transform: none;
+      letter-spacing: 0;
+    }
+
+    input[type="number"], input[type="text"] {
+      width: 100%;
+      background: rgba(255,255,255,0.06);
+      border: 1.5px solid rgba(255,255,255,0.1);
+      border-radius: 10px;
+      padding: 12px 14px;
+      font-size: 16px;
+      color: #fff;
+      outline: none;
+      transition: border-color 0.2s, background 0.2s;
+      -webkit-appearance: none;
+    }
+    input[type="number"]:focus, input[type="text"]:focus {
+      border-color: #f7931a;
+      background: rgba(247,147,26,0.06);
+    }
+    input[type="number"]::placeholder, input[type="text"]::placeholder {
+      color: #334155;
+    }
+    /* Remove arrows from number input */
+    input[type="number"]::-webkit-outer-spin-button,
+    input[type="number"]::-webkit-inner-spin-button { -webkit-appearance: none; }
+
+    /* Row inputs */
+    .row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+
+    /* Calculate button */
+    .btn-calc {
+      width: 100%;
+      background: linear-gradient(135deg, #f7931a, #e8820f);
+      border: none;
+      border-radius: 14px;
+      padding: 16px;
+      font-size: 16px;
+      font-weight: 700;
+      color: #fff;
+      cursor: pointer;
+      margin-bottom: 12px;
+      letter-spacing: 0.3px;
+      transition: opacity 0.15s, transform 0.1s;
+      box-shadow: 0 4px 20px rgba(247,147,26,0.3);
+    }
+    .btn-calc:active { opacity: 0.85; transform: scale(0.98); }
+
+    /* Result */
+    .result {
+      display: none;
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 16px;
+      padding: 20px;
+      margin-bottom: 12px;
+    }
+    .result.visible { display: block; }
+
+    .result-title {
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      color: #64748b;
+      margin-bottom: 16px;
+    }
+
+    .result-direction {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 13px;
+      font-weight: 700;
+      padding: 4px 12px;
+      border-radius: 20px;
+      margin-bottom: 16px;
+    }
+    .result-direction.long {
+      background: rgba(38,166,154,0.15);
+      color: #26a69a;
+      border: 1px solid rgba(38,166,154,0.3);
+    }
+    .result-direction.short {
+      background: rgba(239,83,80,0.15);
+      color: #ef5350;
+      border: 1px solid rgba(239,83,80,0.3);
+    }
+
+    .result-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 10px 0;
+      border-bottom: 1px solid rgba(255,255,255,0.05);
+    }
+    .result-row:last-child { border-bottom: none; }
+    .result-row .lbl { font-size: 13px; color: #64748b; }
+    .result-row .val { font-size: 14px; font-weight: 600; color: #e2e8f0; }
+
+    .result-main {
+      background: rgba(247,147,26,0.08);
+      border: 1px solid rgba(247,147,26,0.2);
+      border-radius: 12px;
+      padding: 16px;
+      margin: 16px 0;
+      text-align: center;
+    }
+    .result-main .label { font-size: 12px; color: #94a3b8; margin-bottom: 4px; }
+    .result-main .amount { font-size: 28px; font-weight: 800; color: #f7931a; letter-spacing: -1px; }
+
+    .rr-badge {
+      display: inline-block;
+      background: rgba(38,166,154,0.15);
+      border: 1px solid rgba(38,166,154,0.3);
+      color: #26a69a;
+      font-size: 13px;
+      font-weight: 700;
+      padding: 4px 12px;
+      border-radius: 20px;
+      margin-top: 8px;
+    }
+
+    /* Error */
+    .error-msg {
+      display: none;
+      background: rgba(239,83,80,0.1);
+      border: 1px solid rgba(239,83,80,0.3);
+      border-radius: 10px;
+      padding: 10px 14px;
+      font-size: 13px;
+      color: #ef5350;
+      margin-bottom: 12px;
+    }
+    .error-msg.visible { display: block; }
+
+    /* Affiliate */
+    .affiliate {
+      background: rgba(255,255,255,0.03);
+      border: 1px solid rgba(255,255,255,0.07);
+      border-radius: 16px;
+      padding: 18px;
+      text-align: center;
+    }
+    .affiliate .tagline {
+      font-size: 13px;
+      font-weight: 700;
+      color: #94a3b8;
+      margin-bottom: 4px;
+    }
+    .affiliate .sub {
+      font-size: 12px;
+      color: #475569;
+      margin-bottom: 14px;
+    }
+    .affiliate-buttons {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+    }
+    .btn-aff {
+      display: block;
+      padding: 12px 8px;
+      border-radius: 12px;
+      text-decoration: none;
+      font-size: 13px;
+      font-weight: 700;
+      transition: opacity 0.15s;
+    }
+    .btn-aff:active { opacity: 0.8; }
+    .btn-aff.hash {
+      background: rgba(247,147,26,0.12);
+      border: 1px solid rgba(247,147,26,0.25);
+      color: #f7931a;
+    }
+    .btn-aff.funding {
+      background: rgba(38,166,154,0.12);
+      border: 1px solid rgba(38,166,154,0.25);
+      color: #26a69a;
+    }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <div class="logo">Just Trade It</div>
+    <h1>Risk Calculator</h1>
+    <p>Position size in seconds</p>
+  </div>
+
+  <!-- Inputs -->
+  <div class="card">
+    <div class="card-title">Account</div>
+    <div class="row">
+      <div class="input-group">
+        <label>Deposit <span class="hint">$</span></label>
+        <input type="number" id="deposit" placeholder="10000" inputmode="decimal" />
+      </div>
+      <div class="input-group">
+        <label>Risk <span class="hint">%</span></label>
+        <input type="number" id="risk" placeholder="1" inputmode="decimal" step="0.1" />
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Trade Setup</div>
+    <div class="input-group">
+      <label>Entry price</label>
+      <input type="number" id="entry" placeholder="1.0850 or 43250" inputmode="decimal" step="any" />
+    </div>
+    <div class="row">
+      <div class="input-group">
+        <label>Stop Loss</label>
+        <input type="number" id="sl" placeholder="1.0800" inputmode="decimal" step="any" />
+      </div>
+      <div class="input-group">
+        <label>Take Profit</label>
+        <input type="number" id="tp" placeholder="1.0950" inputmode="decimal" step="any" />
+      </div>
+    </div>
+  </div>
+
+  <div class="error-msg" id="error"></div>
+
+  <button class="btn-calc" onclick="calculate()">Calculate →</button>
+
+  <!-- Result -->
+  <div class="result" id="result">
+    <div class="result-title">Result</div>
+    <div id="direction" class="result-direction long">📈 LONG</div>
+
+    <div class="result-main">
+      <div class="label">Position Size</div>
+      <div class="amount" id="position">$0</div>
+      <div><span class="rr-badge" id="rr">R:R 1:0</span></div>
+    </div>
+
+    <div class="result-row">
+      <span class="lbl">Deposit</span>
+      <span class="val" id="r-deposit">—</span>
+    </div>
+    <div class="result-row">
+      <span class="lbl">Risk amount</span>
+      <span class="val" id="r-risk">—</span>
+    </div>
+    <div class="result-row">
+      <span class="lbl">SL distance</span>
+      <span class="val" id="r-sl-dist">—</span>
+    </div>
+    <div class="result-row">
+      <span class="lbl">Potential profit</span>
+      <span class="val" id="r-profit">—</span>
+    </div>
+  </div>
+
+  <!-- Affiliate -->
+  <div class="affiliate">
+    <div class="tagline">Trade without risking your own capital</div>
+    <div class="sub">Get up to $200,000 in funding →</div>
+    <div class="affiliate-buttons">
+      <a href="https://hashhedge.com" class="btn-aff hash" target="_blank">⚡ Hash Hedge</a>
+      <a href="https://fundingpips.com" class="btn-aff funding" target="_blank">🚀 Funding Pips</a>
+    </div>
+  </div>
+
+  <script>
+    // Init Telegram Web App
+    if (window.Telegram && window.Telegram.WebApp) {
+      window.Telegram.WebApp.ready();
+      window.Telegram.WebApp.expand();
+    }
+
+    function fmt(n) {
+      return '$' + n.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    }
+
+    function showError(msg) {
+      const el = document.getElementById('error');
+      el.textContent = '⚠️ ' + msg;
+      el.classList.add('visible');
+      document.getElementById('result').classList.remove('visible');
+    }
+
+    function clearError() {
+      document.getElementById('error').classList.remove('visible');
+    }
+
+    function calculate() {
+      clearError();
+
+      const deposit = parseFloat(document.getElementById('deposit').value);
+      const risk    = parseFloat(document.getElementById('risk').value);
+      const entry   = parseFloat(document.getElementById('entry').value);
+      const sl      = parseFloat(document.getElementById('sl').value);
+      const tp      = parseFloat(document.getElementById('tp').value);
+
+      if (!deposit || deposit <= 0) return showError('Enter deposit amount');
+      if (!risk || risk <= 0 || risk > 10) return showError('Risk must be between 0.1% and 10%');
+      if (!entry || entry <= 0) return showError('Enter entry price');
+      if (!sl || sl <= 0 || sl === entry) return showError('Stop Loss must differ from entry');
+      if (!tp || tp <= 0 || tp === entry) return showError('Take Profit must differ from entry');
+
+      const riskUsd      = deposit * risk / 100;
+      const slDist       = Math.abs(entry - sl) / entry;
+      const positionSize = riskUsd / slDist;
+      const tpDist       = Math.abs(tp - entry) / entry;
+      const profit       = positionSize * tpDist;
+      const rr           = profit / riskUsd;
+      const isLong       = tp > entry;
+
+      // Fill result
+      document.getElementById('position').textContent = fmt(positionSize);
+      document.getElementById('rr').textContent = 'R:R  1 : ' + rr.toFixed(1);
+      document.getElementById('r-deposit').textContent = fmt(deposit);
+      document.getElementById('r-risk').textContent = fmt(riskUsd) + ' (' + risk + '%)';
+      document.getElementById('r-sl-dist').textContent = (slDist * 100).toFixed(2) + '%';
+      document.getElementById('r-profit').textContent = fmt(profit) + ' (' + (tpDist * 100).toFixed(2) + '%)';
+
+      const dir = document.getElementById('direction');
+      dir.textContent = isLong ? '📈 LONG' : '📉 SHORT';
+      dir.className = 'result-direction ' + (isLong ? 'long' : 'short');
+
+      document.getElementById('result').classList.add('visible');
+
+      // Scroll to result
+      document.getElementById('result').scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+
+    // Allow Enter key to calculate
+    document.addEventListener('keydown', e => {
+      if (e.key === 'Enter') calculate();
+    });
+  </script>
+</body>
+</html>
