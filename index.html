@@ -264,6 +264,24 @@
       border: 1px solid rgba(38,166,154,0.25);
       color: #26a69a;
     }
+
+    /* YouTube course button */
+    .btn-course {
+      display: block;
+      width: 100%;
+      padding: 14px;
+      margin-bottom: 12px;
+      border-radius: 14px;
+      background: rgba(255,0,0,0.1);
+      border: 1px solid rgba(255,0,0,0.2);
+      color: #ff4444;
+      font-size: 14px;
+      font-weight: 700;
+      text-align: center;
+      text-decoration: none;
+      transition: opacity 0.15s;
+    }
+    .btn-course:active { opacity: 0.8; }
   </style>
 </head>
 <body>
@@ -339,21 +357,29 @@
     </div>
   </div>
 
+  <!-- Free Course -->
+  <a href="https://www.youtube.com/watch?v=Glp2lgMrL_I&t=1s" class="btn-course" target="_blank">
+    🎓 Free Trading Course — Watch on YouTube
+  </a>
+
   <!-- Affiliate -->
   <div class="affiliate">
     <div class="tagline">Trade without risking your own capital</div>
-    <div class="sub">Get up to $200,000 in funding →</div>
+    <div class="sub">Get up to $200,000 in prop funding →</div>
     <div class="affiliate-buttons">
-      <a href="https://hashhedge.com" class="btn-aff hash" target="_blank">⚡ Hash Hedge</a>
-      <a href="https://fundingpips.com" class="btn-aff funding" target="_blank">🚀 Funding Pips</a>
+      <a href="https://hashhedge.com?fpr=youwillbeamillionaire" class="btn-aff hash" target="_blank">⚡ Hash Hedge</a>
+      <a href="https://app.fundingpips.com/register?ref=E56D6F7A" class="btn-aff funding" target="_blank">🚀 Funding Pips</a>
     </div>
   </div>
 
   <script>
-    // Init Telegram Web App
+    // Init Telegram Web App — full screen
     if (window.Telegram && window.Telegram.WebApp) {
-      window.Telegram.WebApp.ready();
-      window.Telegram.WebApp.expand();
+      const tg = window.Telegram.WebApp;
+      tg.ready();
+      tg.expand();
+      if (tg.requestFullscreen) tg.requestFullscreen();
+      if (tg.disableVerticalSwipes) tg.disableVerticalSwipes();
     }
 
     function fmt(n) {
