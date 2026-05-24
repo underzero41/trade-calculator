@@ -4,7 +4,9 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0" />
   <title>Risk Calculator — Just Trade It</title>
-  <script src="https://telegram.org/js/telegram-web-app.js"></script>
+  <link rel="preconnect" href="https://telegram.org" />
+  <link rel="dns-prefetch" href="https://telegram.org" />
+  <script src="https://telegram.org/js/telegram-web-app.js" async></script>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -442,6 +444,11 @@
     document.addEventListener('keydown', e => {
       if (e.key === 'Enter') calculate();
     });
+
+    // Service Worker — кэш на устройстве
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('/trade-calculator/sw.js');
+    }
   </script>
 </body>
 </html>
