@@ -6,7 +6,7 @@
   <title>Risk Calculator — Just Trade It</title>
   <link rel="preconnect" href="https://telegram.org" />
   <link rel="dns-prefetch" href="https://telegram.org" />
-  <script src="https://telegram.org/js/telegram-web-app.js" async></script>
+  <script src="https://telegram.org/js/telegram-web-app.js" async onload="initTelegramApp()"></script>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -375,13 +375,14 @@
   </div>
 
   <script>
-    // Init Telegram Web App — full screen
-    if (window.Telegram && window.Telegram.WebApp) {
-      const tg = window.Telegram.WebApp;
-      tg.ready();
-      tg.expand();
-      if (tg.requestFullscreen) tg.requestFullscreen();
-      if (tg.disableVerticalSwipes) tg.disableVerticalSwipes();
+    function initTelegramApp() {
+      if (window.Telegram && window.Telegram.WebApp) {
+        const tg = window.Telegram.WebApp;
+        tg.ready();
+        tg.expand();
+        if (tg.requestFullscreen) tg.requestFullscreen();
+        if (tg.disableVerticalSwipes) tg.disableVerticalSwipes();
+      }
     }
 
     function fmt(n) {
